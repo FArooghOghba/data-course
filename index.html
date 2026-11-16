@@ -1028,20 +1028,23 @@
           </span>
         </div>
         <h2>جلسه‌ها و همایش‌ها</h2>
+        <div id="sessions-calendar"></div>
         <!-- calendar.ics is built from data/sessions.json on deploy (scripts/build_calendar.py) -->
-        <div class="s-actions" id="cal-subscribe" style="margin-bottom: 1rem">
-          <a class="s-more" id="cal-webcal">سینک با تقویم (iPhone/Mac/Outlook)</a>
-          <a class="s-more" id="cal-google" target="_blank" rel="noopener">سینک با Google Calendar</a>
+        <div id="cal-subscribe" style="margin: -1rem 0 2rem; max-width: 40rem">
+          <a class="s-more" id="cal-add" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 13v5M9.5 15.5h5"/></svg>افزودن به تقویم
+          </a>
+          <p style="margin: 0.5rem 0 0; font-size: 0.8rem; color: var(--fg-subtle)">یک بار اضافه کنید؛ جلسه‌های جدید و تغییر زمان‌ها خودکار در تقویم‌تان می‌نشیند.</p>
         </div>
         <script>
           (function () {
-            var feed = location.host + location.pathname.replace(/[^/]*$/, "") + "calendar.ics";
-            document.getElementById("cal-webcal").href = "webcal://" + feed;
-            document.getElementById("cal-google").href =
-              "https://calendar.google.com/calendar/r?cid=" + encodeURIComponent("webcal://" + feed);
+            var feed = "webcal://" + location.host + location.pathname.replace(/[^/]*$/, "") + "calendar.ics";
+            // Apple devices handle webcal:// natively; everyone else gets Google Calendar's subscribe page.
+            document.getElementById("cal-add").href = /iPhone|iPad|Macintosh/.test(navigator.userAgent)
+              ? feed
+              : "https://calendar.google.com/calendar/r?cid=" + encodeURIComponent(feed);
           })();
         </script>
-        <div id="sessions-calendar"></div>
         <ul class="track-list" id="sessions-list"><li class="people-loading">در حال بارگذاری…</li></ul>
         <div class="s-notes">
           <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></svg>
@@ -1501,20 +1504,6 @@
           }
           if (s.join) {
             linkButton(s.join, '<path d="m22 8-6 4 6 4V8z"/><rect x="2" y="6" width="14" height="12" rx="2"/>', "ورود به کلاس");
-          }
-          // "start" (ISO with timezone) adds a Google Calendar button; events last 2h.
-          if (s.start) {
-            var st = new Date(s.start);
-            var gcal = function (d) { return d.toISOString().replace(/[-:]|\.\d{3}/g, ""); };
-            linkButton(
-              "https://calendar.google.com/calendar/render?action=TEMPLATE" +
-                "&text=" + encodeURIComponent(s.type + ": " + s.title) +
-                "&dates=" + gcal(st) + "/" + gcal(new Date(st.getTime() + 2 * 3600e3)) +
-                "&details=" + encodeURIComponent((s.speaker ? "مدرس: " + s.speaker + "\n" : "") + (s.join ? "ورود به کلاس: " + s.join : "")) +
-                (s.join ? "&location=" + encodeURIComponent(s.join) : ""),
-              '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M12 13v5M9.5 15.5h5"/>',
-              "افزودن به تقویم"
-            );
           }
           if (s.video) {
             linkButton(s.video, '<circle cx="12" cy="12" r="10"/><path d="m10 8 6 4-6 4V8z"/>', "فیلم جلسه");
